@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#4A90D9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="记账本">
+  <title>简洁记账</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="apple-touch-icon" href="icons/icon-180.svg">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+</head>
+<body>
+  <!-- 顶部状态栏占位 -->
+  <div class="status-bar"></div>
+
+  <!-- 全局提示 -->
+  <div id="toast" class="toast"></div>
+
+  <!-- 确认弹窗 -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title" id="confirmTitle">提示</div>
+      <div class="modal-body" id="confirmMsg">确定吗？</div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeConfirm(false)">取消</button>
+        <button class="btn btn-primary" onclick="closeConfirm(true)">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通用输入弹窗 -->
+  <div id="inputModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title" id="inputTitle">输入</div>
+      <div class="modal-body">
+        <input type="text" id="inputField" class="input" placeholder="">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeInputModal(false)">取消</button>
+        <button class="btn btn-primary" onclick="closeInputModal(true)">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 年月选择弹窗 -->
+  <div id="monthPickerModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title">选择年月</div>
+      <div class="modal-body">
+        <div style="display:flex;gap:12px;justify-content:center;margin-bottom:12px">
+          <select id="pickYear" style="padding:10px 14px;border-radius:8px;background:#f5f7fa;font-size:16px;border:none"></select>
+          <select id="pickMonth" style="padding:10px 14px;border-radius:8px;background:#f5f7fa;font-size:16px;border:none">
+            <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+            <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+            <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+            <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeMonthPicker(false)">取消</button>
+        <button class="btn btn-outline" onclick="goCurrentMonth()">回到本月</button>
+        <button class="btn btn-primary" onclick="closeMonthPicker(true)">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 日历选择弹窗 -->
+  <div id="calendarModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title">选择日期</div>
+      <div class="modal-body">
+        <div class="cal-head">
+          <span class="cal-nav" onclick="calPrevMonth()">‹</span>
+          <div class="cal-title"><span id="calYear"></span>年 <span id="calMonth"></span></div>
+          <span class="cal-nav" onclick="calNextMonth()">›</span>
+        </div>
+        <div class="cal-weekdays">
+          <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div style="text-align:center;font-size:11px;color:#999;margin-top:8px">灰色日期为未来日期，不可选择</div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="goCurrentDay()">今天</button>
+        <button class="btn btn-secondary" onclick="closeCalendar()">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主容器 -->
+  <div id="app" class="app-container">
+    <!-- 页面内容动态渲染 -->
+  </div>
+
+  <!-- 底部导航栏 -->
+  <nav class="bottom-nav" id="bottomNav">
+    <div class="nav-item active" data-page="home">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-text">首页</div>
+    </div>
+    <div class="nav-item" data-page="add">
+      <div class="nav-icon nav-add">➕</div>
+      <div class="nav-text">记一笔</div>
+    </div>
+    <div class="nav-item" data-page="stats">
+      <div class="nav-icon">📊</div>
+      <div class="nav-text">统计</div>
+    </div>
+    <div class="nav-item" data-page="ledger">
+      <div class="nav-icon">📚</div>
+      <div class="nav-text">账本</div>
+    </div>
+    <div class="nav-item" data-page="me">
+      <div class="nav-icon">👤</div>
+      <div class="nav-text">我的</div>
+    </div>
+  </nav>
+
+  <script src="app.js?v=8"></script>
+  <script>
+    // 注册 Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => {
+          console.log('SW注册失败:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

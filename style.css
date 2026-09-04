@@ -79,22 +79,14 @@ button {
 }
 
 .nav-icon {
-  font-size: 22px;
-  margin-bottom: 2px;
-}
-
-.nav-add {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, var(--theme-a, #FFB6D1), var(--theme-a-dark, #FF8FB8));
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--theme-a-text, #5a2a3e);
-  font-size: 24px;
-  margin-top: -20px;
-  box-shadow: 0 4px 12px rgba(255,143,184,0.4);
+  margin-bottom: 2px;
+}
+
+.nav-icon svg {
+  display: block;
 }
 
 .nav-text {
@@ -592,13 +584,13 @@ button {
 }
 
 .expense-cat {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   color: #1a1a1a;
 }
 
 .expense-sub {
-  font-size: 12px;
+  font-size: 10px;
   color: #999;
   margin-top: 2px;
   overflow: hidden;
@@ -613,13 +605,13 @@ button {
 }
 
 .expense-amount {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   color: #e74c3c;
 }
 
 .expense-time {
-  font-size: 11px;
+  font-size: 9px;
   color: #bbb;
   margin-top: 2px;
 }
@@ -810,6 +802,18 @@ button {
 .stats-tab.active {
   background: var(--theme-a, #FFB6D1);
   color: var(--theme-a-text, #5a2a3e);
+}
+
+.stats-date-picker {
+  display: inline-block;
+  padding: 6px 16px;
+  background: #fff;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
 .stats-chart {
@@ -1313,10 +1317,30 @@ button {
 }
 
 .manage-cat-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 8px 4px;
   font-size: 13px;
   color: #888;
   font-weight: 500;
+  gap: 8px;
+}
+
+.manage-cat-name-line {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.manage-cat-btns {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .manage-sub-item {
@@ -1326,11 +1350,22 @@ button {
   background: #fff;
   border-radius: 8px;
   margin-bottom: 6px;
+  gap: 8px;
 }
 
 .manage-sub-name {
   flex: 1;
+  min-width: 0;
   font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.manage-sub-btns {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .manage-cat-head {
@@ -1438,9 +1473,14 @@ button {
 .cal-nav {
   font-size: 22px;
   color: var(--theme-a-dark, #FF8FB8);
-  padding: 4px 12px;
+  padding: 4px 10px;
   cursor: pointer;
   font-weight: 700;
+}
+.cal-nav-year {
+  font-size: 16px;
+  padding: 4px 8px;
+  opacity: 0.8;
 }
 .cal-title {
   font-size: 17px;

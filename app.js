@@ -1573,14 +1573,14 @@ function saveBudget() {
   const key = ledger.id + '_' + state.currentMonth;
   const budget = state.budgets[key];
   if (budget) {
-    // 功能2：已过月份以该月1日为起点；当月以设置当日为起点
+    // 功能2：已过月份以用户左上角选择的日期为第一日；当月以设置当日为第一日
     const now = new Date();
     const curYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     if (state.currentMonth === curYm) {
       budget.setDate = Date.now();
     } else {
-      const [y, m] = state.currentMonth.split('-').map(Number);
-      budget.setDate = new Date(y, m - 1, 1).getTime();
+      // 已过月份：使用用户在首页选择的日期作为周期起点
+      budget.setDate = state.viewDate || Date.now();
     }
   }
   save();

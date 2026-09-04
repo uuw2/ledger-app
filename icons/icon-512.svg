@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4A90D9"/>
+      <stop offset="100%" stop-color="#357ABD"/>
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#bg)"/>
+  <rect x="112" y="120" width="288" height="304" rx="22" fill="#ffffff"/>
+  <!-- 线圈 -->
+  <g fill="#c0c4cc">
+    <circle cx="112" cy="174" r="8"/><circle cx="112" cy="218" r="8"/>
+    <circle cx="112" cy="262" r="8"/><circle cx="112" cy="306" r="8"/>
+    <circle cx="112" cy="350" r="8"/><circle cx="112" cy="394" r="8"/>
+  </g>
+  <!-- 行1 -->
+  <rect x="144" y="160" width="240" height="24" rx="12" fill="#eaf3fd"/>
+  <circle cx="164" y="172" r="8" fill="#4A90D9"/>
+  <text x="164" y="177" font-size="12" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="bold">¥</text>
+  <rect x="184" y="168" width="104" height="10" rx="5" fill="#c7e0f9"/>
+  <rect x="304" y="165" width="72" height="16" rx="5" fill="#4A90D9"/>
+  <!-- 行2 -->
+  <rect x="144" y="200" width="240" height="24" rx="12" fill="#eaf3fd"/>
+  <circle cx="164" y="212" r="8" fill="#27ae60"/>
+  <rect x="184" y="208" width="80" height="10" rx="5" fill="#c9e8d6"/>
+  <rect x="304" y="205" width="72" height="16" rx="5" fill="#27ae60"/>
+  <!-- 行3 -->
+  <rect x="144" y="240" width="240" height="24" rx="12" fill="#fff8e1"/>
+  <circle cx="164" y="252" r="8" fill="#f39c12"/>
+  <rect x="184" y="248" width="124" height="10" rx="5" fill="#ffe082"/>
+  <rect x="304" y="245" width="72" height="16" rx="5" fill="#f39c12"/>
+  <!-- 行4 -->
+  <rect x="144" y="280" width="240" height="24" rx="12" fill="#f5eefb"/>
+  <circle cx="164" y="292" r="8" fill="#9b59b6"/>
+  <rect x="184" y="288" width="90" height="10" rx="5" fill="#dcc7e7"/>
+  <rect x="304" y="285" width="72" height="16" rx="5" fill="#9b59b6"/>
+  <!-- 行5 -->
+  <rect x="144" y="320" width="240" height="24" rx="12" fill="#eaf5f1"/>
+  <circle cx="164" y="332" r="8" fill="#1abc9c"/>
+  <rect x="184" y="328" width="60" height="10" rx="5" fill="#b9e5d6"/>
+  <rect x="304" y="325" width="72" height="16" rx="5" fill="#1abc9c"/>
+  <!-- 进度条 -->
+  <rect x="144" y="370" width="240" height="18" rx="9" fill="#f0f2f5"/>
+  <rect x="144" y="370" width="160" height="18" rx="9" fill="url(#bg)"/>
+  <text x="256" y="384" font-size="12" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="bold">已用 67%</text>
+  <!-- 金额 -->
+  <text x="256" y="428" font-size="30" text-anchor="middle" fill="#4A90D9" font-family="Arial,sans-serif" font-weight="bold">¥ 8,260.50</text>
+  <text x="256" y="454" font-size="14" text-anchor="middle" fill="#888" font-family="Arial,sans-serif">本月支出 · 总预算 ¥12,000</text>
+</svg>

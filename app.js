@@ -540,6 +540,14 @@ function openExpenseDatePicker() {
   $('calendarModal').classList.add('show');
 }
 
+function openEditExpenseDatePicker() {
+  calMode = 'editExpense';
+  const base = editExpenseState.date ? new Date(editExpenseState.date) : new Date();
+  calCursor = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+  renderCalendarGrid();
+  $('calendarModal').classList.add('show');
+}
+
 function openStatsDatePicker() {
   calMode = 'stats';
   calCursor = new Date(state.viewDate);
@@ -555,6 +563,8 @@ function renderCalendarGrid() {
   let curStr;
   if (calMode === 'home' || calMode === 'stats') {
     curStr = new Date(state.viewDate).toDateString();
+  } else if (calMode === 'editExpense') {
+    curStr = editExpenseState.date ? new Date(editExpenseState.date).toDateString() : today.toDateString();
   } else {
     curStr = addPageState.date ? new Date(addPageState.date).toDateString() : today.toDateString();
   }
@@ -570,6 +580,7 @@ function renderCalendarGrid() {
     let handler;
     if (calMode === 'home') handler = `setViewDate(${ts});closeCalendar()`;
     else if (calMode === 'stats') handler = `setStatsDate(${ts})`;
+    else if (calMode === 'editExpense') handler = `setEditExpenseDate(${ts})`;
     else handler = `setExpenseDate(${ts})`;
     cells += `<div class="cal-cell ${isCur ? 'cur' : ''} ${isToday ? 'today' : ''}"
       onclick="${handler}">
@@ -583,6 +594,12 @@ function renderCalendarGrid() {
 
 function setExpenseDate(ts) {
   addPageState.date = ts;
+  closeCalendar();
+  render();
+}
+
+function setEditExpenseDate(ts) {
+  editExpenseState.date = ts;
   closeCalendar();
   render();
 }
@@ -852,7 +869,7 @@ function renderAdd(app) {
 
       <div style="padding:12px 20px;background:#fff;border-bottom:1px solid #f5f5f5">
         <div style="display:flex;align-items:center;justify-content:space-between" onclick="openExpenseDatePicker()">
-          <span style="font-size:13px;color:#666">📅 账单日期</span>
+          <span style="font-size:13px;color:#666"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>账单日期</span>
           <div style="display:flex;align-items:center;gap:4px">
             <span style="font-size:14px;color:#333">${dateStr}</span>
             <span style="font-size:14px;color:#999">▾</span>
@@ -2169,11 +2186,12 @@ function renderEditExpense(app, params) {
       </div>
 
       <div style="padding:12px 20px;background:#fff;border-bottom:1px solid #f5f5f5">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <span style="font-size:13px;color:#666">📅 账单日期</span>
-          <input id="editDate" type="date" value="${dateStr}"
-            style="padding:6px 10px;border-radius:8px;background:#f5f7fa;font-size:14px;border:none"
-            onchange="editExpenseState.date=new Date(this.value).getTime()">
+        <div style="display:flex;align-items:center;justify-content:space-between" onclick="openEditExpenseDatePicker()">
+          <span style="font-size:13px;color:#666"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>账单日期</span>
+          <div style="display:flex;align-items:center;gap:4px">
+            <span style="font-size:14px;color:#333">${dateStr}</span>
+            <span style="font-size:14px;color:#999">▾</span>
+          </div>
         </div>
       </div>
 

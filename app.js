@@ -57,7 +57,8 @@ function getDefaultData() {
       reminderTime: '21:00',
       reminderEnabled: false,
       lastReminderDate: '',
-      skin: { a: 'pink', b: 'cream' }
+      skin: { a: 'pink', b: 'cream' },
+      initialBalance: 0
     },
     ledgers: [{
       id: ledgerId,
@@ -133,6 +134,7 @@ function migrateData() {
   });
   if (!state.viewDate) { state.viewDate = Date.now(); changed = true; }
   if (!state.settings.skin) { state.settings.skin = { a: 'pink', b: 'cream' }; changed = true; }
+  if (state.settings.initialBalance == null) { state.settings.initialBalance = 0; changed = true; }
   if (changed) save();
 }
 migrateData();
@@ -334,14 +336,16 @@ function renderHome(app) {
   const totalSpent = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
   const unclassifiedCount = expenses.filter(e => !e.categoryId).length;
 
-  // 储蓄金额：储蓄类别的已存金额
+  // 储蓄金额：储蓄类别的已存金额 + 账户起始金额
+  const initialBalance = Number(state.settings.initialBalance) || 0;
   const savingsCats = (state.categories[ledger.id] || []).filter(c => c.kind === 'savings').map(c => c.id);
-  const savingsAmount = expenses.filter(e => savingsCats.includes(e.categoryId))
+  const savingsFromExpenses = expenses.filter(e => savingsCats.includes(e.categoryId))
     .reduce((s, e) => s + (Number(e.amount) || 0), 0);
-  // 实际支出 = 总支出 - 储蓄金额
-  const actualExpense = totalSpent - savingsAmount;
-  // 剩余预算 = 总预算 - 实际支出 - 储蓄（已存的钱不再可支配）
-  const remainingBudget = totalBudget - actualExpense - savingsAmount;
+  const savingsAmount = savingsFromExpenses + initialBalance;
+  // 实际支出 = 总支出 - 储蓄类支出（起始金额不计入支出）
+  const actualExpense = totalSpent - savingsFromExpenses;
+  // 剩余预算 = 总预算 - 实际支出 - 储蓄类支出（已存的钱不再可支配，起始金额是已有存款不扣减）
+  const remainingBudget = totalBudget - actualExpense - savingsFromExpenses;
 
   // 分类进度
   const cats = (state.categories[ledger.id] || []);
@@ -408,11 +412,7 @@ function renderHome(app) {
     <div class="home-header">
       <div class="home-month">
         <div class="month-switch">
-          <span class="month-btn" onclick="changeMonth(-1)" title="上一月">‹‹</span>
-          <span class="month-btn" onclick="changeDay(-1)" title="前一日">‹</span>
-          <span class="month-text" onclick="openCalendarPicker()" style="cursor:pointer">${vdY}年${vdM}月${vdD}日 ▾</span>
-          <span class="month-btn" onclick="changeDay(1)" title="后一日">›</span>
-          <span class="month-btn" onclick="changeMonth(1)" title="下一月">››</span>
+          <span class="month-text" onclick="openCalendarPicker()" style="cursor:pointer">${vdY}年${vdM}月${vdD}日</span>
         </div>
         <div class="ledger-selector" onclick="navigate('ledger')">
           <span style="margin-right:6px">${ledger.icon}</span>
@@ -521,14 +521,43 @@ function setViewDate(ts) {
   render();
 }
 
-// 日历选择器
+// 日历选择器（支持两种模式：home=首页日期选择，expense=记一笔日期选择）
+let calMode = 'home';
+let calCursor = null; // 日历当前浏览的年月
+
 function openCalendarPicker() {
-  const d = new Date(state.viewDate);
-  const y = d.getFullYear();
-  const m = d.getMonth();
+  calMode = 'home';
+  calCursor = new Date(state.viewDate);
+  renderCalendarGrid();
+  $('calendarModal').classList.add('show');
+}
+
+function openExpenseDatePicker() {
+  calMode = 'expense';
+  const base = addPageState.date ? new Date(addPageState.date) : new Date();
+  calCursor = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+  renderCalendarGrid();
+  $('calendarModal').classList.add('show');
+}
+
+function openStatsDatePicker() {
+  calMode = 'stats';
+  calCursor = new Date(state.viewDate);
+  renderCalendarGrid();
+  $('calendarModal').classList.add('show');
+}
+
+function renderCalendarGrid() {
+  const y = calCursor.getFullYear();
+  const m = calCursor.getMonth();
   const today = new Date();
   const todayStr = today.toDateString();
-  const curStr = d.toDateString();
+  let curStr;
+  if (calMode === 'home' || calMode === 'stats') {
+    curStr = new Date(state.viewDate).toDateString();
+  } else {
+    curStr = addPageState.date ? new Date(addPageState.date).toDateString() : today.toDateString();
+  }
   const firstDay = new Date(y, m, 1).getDay();
   const daysInMonth = new Date(y, m + 1, 0).getDate();
   let cells = '';
@@ -537,34 +566,60 @@ function openCalendarPicker() {
     const cellDate = new Date(y, m, day);
     const isToday = cellDate.toDateString() === todayStr;
     const isCur = cellDate.toDateString() === curStr;
-    const isFuture = cellDate > today;
-    cells += `<div class="cal-cell ${isCur ? 'cur' : ''} ${isToday ? 'today' : ''} ${isFuture ? 'future' : ''}"
-      onclick="${isFuture ? '' : `setViewDate(${cellDate.getTime()});closeCalendar()`}">
+    const ts = cellDate.getTime();
+    let handler;
+    if (calMode === 'home') handler = `setViewDate(${ts});closeCalendar()`;
+    else if (calMode === 'stats') handler = `setStatsDate(${ts})`;
+    else handler = `setExpenseDate(${ts})`;
+    cells += `<div class="cal-cell ${isCur ? 'cur' : ''} ${isToday ? 'today' : ''}"
+      onclick="${handler}">
       ${day}
     </div>`;
   }
   $('calYear').textContent = y;
   $('calMonth').textContent = (m + 1) + '月';
   $('calGrid').innerHTML = cells;
-  $('calendarModal').classList.add('show');
+}
+
+function setExpenseDate(ts) {
+  addPageState.date = ts;
+  closeCalendar();
+  render();
+}
+
+function setStatsDate(ts) {
+  const d = new Date(ts);
+  state.viewDate = d.getTime();
+  state.currentMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  save();
+  closeCalendar();
+  render();
 }
 
 function closeCalendar() { $('calendarModal').classList.remove('show'); }
 
 function calPrevMonth() {
-  const d = new Date(state.viewDate);
-  d.setDate(1);
-  d.setMonth(d.getMonth() - 1);
-  state.viewDate = d.getTime();
-  openCalendarPicker();
+  calCursor.setDate(1);
+  calCursor.setMonth(calCursor.getMonth() - 1);
+  renderCalendarGrid();
 }
 
 function calNextMonth() {
-  const d = new Date(state.viewDate);
-  d.setDate(1);
-  d.setMonth(d.getMonth() + 1);
-  state.viewDate = d.getTime();
-  openCalendarPicker();
+  calCursor.setDate(1);
+  calCursor.setMonth(calCursor.getMonth() + 1);
+  renderCalendarGrid();
+}
+
+function calPrevYear() {
+  calCursor.setDate(1);
+  calCursor.setFullYear(calCursor.getFullYear() - 1);
+  renderCalendarGrid();
+}
+
+function calNextYear() {
+  calCursor.setDate(1);
+  calCursor.setFullYear(calCursor.getFullYear() + 1);
+  renderCalendarGrid();
 }
 
 function openMonthPicker() {
@@ -608,6 +663,12 @@ function goCurrentMonth() {
 
 function goCurrentDay() {
   const now = new Date();
+  if (calMode === 'expense') {
+    addPageState.date = now.getTime();
+    closeCalendar();
+    render();
+    return;
+  }
   state.viewDate = now.getTime();
   state.currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   save();
@@ -790,11 +851,12 @@ function renderAdd(app) {
       </div>
 
       <div style="padding:12px 20px;background:#fff;border-bottom:1px solid #f5f5f5">
-        <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;justify-content:space-between" onclick="openExpenseDatePicker()">
           <span style="font-size:13px;color:#666">📅 账单日期</span>
-          <input id="expenseDate" type="date" value="${dateStr}"
-            style="padding:6px 10px;border-radius:8px;background:#f5f7fa;font-size:14px;border:none"
-            onchange="addPageState.date = new Date(this.value).getTime()">
+          <div style="display:flex;align-items:center;gap:4px">
+            <span style="font-size:14px;color:#333">${dateStr}</span>
+            <span style="font-size:14px;color:#999">▾</span>
+          </div>
         </div>
         <div style="font-size:11px;color:#999;margin-top:6px">默认为今天，可选择任意日期（含未来）</div>
       </div>
@@ -922,13 +984,13 @@ function saveExpense() {
 // type: today / month / year / total
 function getStatsAggregation(type, ledgerId) {
   const cats = state.categories[ledgerId] || [];
-  const now = new Date();
+  const vd = new Date(state.viewDate);
   let start, end, periodLabel;
 
   if (type === 'today') {
-    start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    start = new Date(vd.getFullYear(), vd.getMonth(), vd.getDate()).getTime();
     end = start + 86400000;
-    periodLabel = '今日';
+    periodLabel = `${vd.getMonth() + 1}月${vd.getDate()}日`;
   } else if (type === 'month') {
     const ym = state.currentMonth;
     const [s, e] = getMonthRange(ym);
@@ -992,19 +1054,21 @@ function getStatsAggregation(type, ledgerId) {
     color: COLORS[idx % COLORS.length]
   })).filter(d => d.budget > 0 || d.spent > 0);
 
-  // 储蓄金额 = 储蓄类别的实际已存金额
-  const totalSavings = catData.filter(d => d.isSavings).reduce((s, d) => s + d.spent, 0);
+  // 储蓄金额 = 储蓄类别的实际已存金额 + 账户起始金额
+  const initialBalance = Number(state.settings.initialBalance) || 0;
+  const savingsFromExpenses = catData.filter(d => d.isSavings).reduce((s, d) => s + d.spent, 0);
+  const totalSavings = savingsFromExpenses + initialBalance;
   const savingsBudget = catData.filter(d => d.isSavings).reduce((s, d) => s + d.budget, 0);
-  // 实际支出 = 总支出 - 储蓄金额（储蓄不算支出）
-  const actualExpense = totalSpent - totalSavings;
-  // 结余 = 除储蓄外各类别(预算-支出) + 储蓄金额
+  // 实际支出 = 总支出 - 储蓄类支出（起始金额是已有存款，不算支出）
+  const actualExpense = totalSpent - savingsFromExpenses;
+  // 结余 = 除储蓄外各类别(预算-支出) + 储蓄金额（含起始金额）
   const surplus = catData.filter(d => !d.isSavings).reduce((s, d) => s + (d.budget - d.spent), 0) + totalSavings;
 
   // 今日总预算 = 本月剩余可支配金额（功能1）
   let displayBudget = totalBudget;
   if (type === 'today') {
     // 本月剩余可支配 = 本月总预算 - 本月实际支出
-    const ymNow = state.currentMonth;
+    const ymNow = `${vd.getFullYear()}-${String(vd.getMonth() + 1).padStart(2, '0')}`;
     const [ms, me] = getMonthRange(ymNow);
     const monthExpenses = state.expenses.filter(x =>
       x.ledgerId === ledgerId && x.date >= ms && x.date < me);
@@ -1035,6 +1099,12 @@ function renderStats(app, params = {}) {
   const type = params.type || 'month'; // today / month / year / total
   const ledger = getCurrentLedger();
   if (!ledger) { app.innerHTML = '<div class="empty">请先创建账本</div>'; return; }
+
+  // 统计日期基于 viewDate
+  const vd = new Date(state.viewDate);
+  const vdY = vd.getFullYear();
+  const vdM = vd.getMonth() + 1;
+  const vdD = vd.getDate();
 
   const { periodLabel, totalBudget, totalExpense, totalSavings, surplus, catData, unclassifiedSpent, expenses } =
     getStatsAggregation(type, ledger.id);
@@ -1112,6 +1182,14 @@ function renderStats(app, params = {}) {
       <div class="stats-tab ${type === 'year' ? 'active' : ''}" onclick="navigate('stats',{type:'year'})">年度</div>
       <div class="stats-tab ${type === 'total' ? 'active' : ''}" onclick="navigate('stats',{type:'total'})">总计</div>
     </div>
+
+    ${type !== 'total' ? `
+    <div style="padding:8px 16px 0;text-align:center">
+      <span class="stats-date-picker" onclick="openStatsDatePicker()">
+        ${type === 'today' ? `${vdY}年${vdM}月${vdD}日` : (type === 'month' ? `${vdY}年${vdM}月` : `${vdY}年度`)}
+        <span style="font-size:12px;color:#999;margin-left:4px">▾</span>
+      </span>
+    </div>` : ''}
 
     <div class="stats-summary-card">
       <div class="stats-summary-item">
@@ -1448,6 +1526,7 @@ function renderBudgetAllocate(app) {
 
     <div style="padding:16px">
       <button class="btn btn-primary btn-block" onclick="saveBudget()">保存预算方案</button>
+      <button class="btn btn-danger btn-block" style="margin-top:10px" onclick="deleteBudget()">删除预算方案</button>
     </div>
   `;
 }
@@ -1476,9 +1555,30 @@ function saveBudget() {
   const ledger = getCurrentLedger();
   const key = ledger.id + '_' + state.currentMonth;
   const budget = state.budgets[key];
-  if (budget) budget.setDate = Date.now();
+  if (budget) {
+    // 功能2：已过月份以该月1日为起点；当月以设置当日为起点
+    const now = new Date();
+    const curYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    if (state.currentMonth === curYm) {
+      budget.setDate = Date.now();
+    } else {
+      const [y, m] = state.currentMonth.split('-').map(Number);
+      budget.setDate = new Date(y, m - 1, 1).getTime();
+    }
+  }
   save();
   toast('预算已保存 💪');
+  setTimeout(() => navigate('home'), 500);
+}
+
+async function deleteBudget() {
+  const ok = await confirmDialog('删除预算方案', '确定删除该月的预算方案？已有支出记录不受影响。');
+  if (!ok) return;
+  const ledger = getCurrentLedger();
+  const key = ledger.id + '_' + state.currentMonth;
+  delete state.budgets[key];
+  save();
+  toast('预算方案已删除');
   setTimeout(() => navigate('home'), 500);
 }
 
@@ -1505,22 +1605,26 @@ function renderCatManage(app) {
         const kindColor = isSavings ? '#f39c12' : (isDebt ? '#8e44ad' : '#4A90D9');
         return `
         <div class="manage-cat-section">
-          <div class="manage-cat-title">${c.emoji} ${c.name}
-            <span style="font-size:10px;color:${kindColor};margin-left:4px">${kindTag}</span>
-            <span style="font-size:10px;color:#999;margin-left:6px">日均${c.dailyLabel}</span>
-            <span style="float:right">
-              <button class="btn btn-secondary" style="padding:2px 10px;font-size:12px" onclick="toggleCatKind('${c.id}')">${isSavings || isDebt ? '改为支出' : '改为储蓄'}</button>
-              <button class="btn btn-secondary" style="padding:2px 10px;font-size:12px" onclick="editDailyLabel('${c.id}')">改标签</button>
-              <button class="btn btn-secondary" style="padding:2px 10px;font-size:12px" onclick="editCat('${c.id}','name')">重命名</button>
-              <button class="btn btn-danger" style="padding:2px 10px;font-size:12px" onclick="delCat('${c.id}')">删除</button>
+          <div class="manage-cat-title">
+            <span class="manage-cat-name-line">${c.emoji} ${c.name}
+              <span style="font-size:10px;color:${kindColor};margin-left:4px">${kindTag}</span>
+              <span style="font-size:10px;color:#999;margin-left:6px">日均${c.dailyLabel}</span>
+            </span>
+            <span class="manage-cat-btns">
+              <button class="btn btn-secondary" style="padding:2px 8px;font-size:11px" onclick="toggleCatKind('${c.id}')">${isSavings || isDebt ? '改为支出' : '改为储蓄'}</button>
+              <button class="btn btn-secondary" style="padding:2px 8px;font-size:11px" onclick="editDailyLabel('${c.id}')">改标签</button>
+              <button class="btn btn-secondary" style="padding:2px 8px;font-size:11px" onclick="editCat('${c.id}','name')">重命名</button>
+              <button class="btn btn-danger" style="padding:2px 8px;font-size:11px" onclick="delCat('${c.id}')">删除</button>
             </span>
           </div>
           <div>
             ${c.subCategories.map(s => `
               <div class="manage-sub-item">
                 <div class="manage-sub-name">· ${s.name}</div>
-                <button class="btn btn-secondary" style="padding:2px 10px;font-size:12px" onclick="editSub('${c.id}','${s.id}')">改名</button>
-                <button class="btn btn-danger" style="padding:2px 10px;font-size:12px;margin-left:6px" onclick="delSub('${c.id}','${s.id}')">删</button>
+                <div class="manage-sub-btns">
+                  <button class="btn btn-secondary" style="padding:2px 8px;font-size:11px" onclick="editSub('${c.id}','${s.id}')">改名</button>
+                  <button class="btn btn-danger" style="padding:2px 8px;font-size:11px" onclick="delSub('${c.id}','${s.id}')">删</button>
+                </div>
               </div>`).join('')}
             <button class="btn btn-outline" style="width:100%;margin-top:6px;padding:8px;font-size:13px" onclick="addSub('${c.id}')">+ 新增子分类</button>
           </div>
@@ -1660,6 +1764,12 @@ function renderMe(app) {
         <div class="menu-value">${reminderEnabled ? '已开启 · ' + reminderTime : '未开启'}</div>
         <div class="menu-arrow">›</div>
       </div>
+      <div class="menu-item" onclick="setInitialBalance()">
+        <div class="menu-icon">🏦</div>
+        <div class="menu-label">账户起始金额</div>
+        <div class="menu-value">¥${fmtMoney(state.settings.initialBalance || 0)}</div>
+        <div class="menu-arrow">›</div>
+      </div>
       <div class="menu-item" onclick="navigate('catManage')">
         <div class="menu-icon">🏷️</div>
         <div class="menu-label">分类管理</div>
@@ -1698,6 +1808,18 @@ function renderMe(app) {
 }
 
 // ============ 5.1 提醒设置 ============
+async function setInitialBalance() {
+  const cur = state.settings.initialBalance || 0;
+  const val = await inputDialog('账户起始金额', '开始使用时已有存款（计入储蓄）', String(cur));
+  if (val == null) return;
+  const n = parseFloat(val);
+  if (isNaN(n) || n < 0) { toast('请输入有效金额'); return; }
+  state.settings.initialBalance = Math.round(n * 100) / 100;
+  save();
+  toast('起始金额已设置');
+  render();
+}
+
 function renderSettingsReminder(app) {
   const { reminderTime, reminderEnabled } = state.settings;
   const [h, mm] = (reminderTime || '21:00').split(':');

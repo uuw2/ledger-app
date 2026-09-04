@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4A90D9"/>
+      <stop offset="100%" stop-color="#357ABD"/>
+    </linearGradient>
+  </defs>
+  <rect x="12" y="12" width="168" height="168" rx="36" fill="url(#bg)"/>
+  <rect x="42" y="46" width="108" height="112" rx="9" fill="#fff"/>
+  <circle cx="42" cy="65" r="3" fill="#c0c4cc"/>
+  <circle cx="42" cy="80" r="3" fill="#c0c4cc"/>
+  <circle cx="42" cy="95" r="3" fill="#c0c4cc"/>
+  <circle cx="42" cy="110" r="3" fill="#c0c4cc"/>
+  <circle cx="42" cy="125" r="3" fill="#c0c4cc"/>
+  <circle cx="42" cy="140" r="3" fill="#c0c4cc"/>
+  <!-- 行1 -->
+  <rect x="52" y="60" width="90" height="8" rx="4" fill="#eaf3fd"/>
+  <circle cx="60" y="64" r="3" fill="#4A90D9"/>
+  <rect x="67" y="62" width="38" height="4" rx="2" fill="#c7e0f9"/>
+  <rect x="118" y="61" width="20" height="6" rx="2" fill="#4A90D9"/>
+  <!-- 行2 -->
+  <rect x="52" y="75" width="90" height="8" rx="4" fill="#eaf3fd"/>
+  <circle cx="60" y="79" r="3" fill="#27ae60"/>
+  <rect x="67" y="77" width="28" height="4" rx="2" fill="#c9e8d6"/>
+  <rect x="118" y="76" width="20" height="6" rx="2" fill="#27ae60"/>
+  <!-- 行3 -->
+  <rect x="52" y="90" width="90" height="8" rx="4" fill="#fff8e1"/>
+  <circle cx="60" y="94" r="3" fill="#f39c12"/>
+  <rect x="67" y="92" width="46" height="4" rx="2" fill="#ffe082"/>
+  <rect x="118" y="91" width="20" height="6" rx="2" fill="#f39c12"/>
+  <!-- 行4 -->
+  <rect x="52" y="105" width="90" height="8" rx="4" fill="#eaf3fd"/>
+  <circle cx="60" y="109" r="3" fill="#9b59b6"/>
+  <rect x="67" y="107" width="34" height="4" rx="2" fill="#dcc7e7"/>
+  <rect x="118" y="106" width="20" height="6" rx="2" fill="#9b59b6"/>
+  <!-- 进度 -->
+  <rect x="52" y="128" width="90" height="7" rx="3" fill="#f0f2f5"/>
+  <rect x="52" y="128" width="58" height="7" rx="3" fill="url(#bg)"/>
+  <!-- 金额 -->
+  <text x="96" y="152" font-size="13" text-anchor="middle" fill="#4A90D9" font-family="Arial,sans-serif" font-weight="bold">¥ 8,260</text>
+</svg>

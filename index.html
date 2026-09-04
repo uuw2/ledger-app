@@ -75,18 +75,19 @@
       <div class="modal-title">选择日期</div>
       <div class="modal-body">
         <div class="cal-head">
+          <span class="cal-nav cal-nav-year" onclick="calPrevYear()">‹‹</span>
           <span class="cal-nav" onclick="calPrevMonth()">‹</span>
           <div class="cal-title"><span id="calYear"></span>年 <span id="calMonth"></span></div>
           <span class="cal-nav" onclick="calNextMonth()">›</span>
+          <span class="cal-nav cal-nav-year" onclick="calNextYear()">››</span>
         </div>
         <div class="cal-weekdays">
           <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
         </div>
         <div class="cal-grid" id="calGrid"></div>
-        <div style="text-align:center;font-size:11px;color:#999;margin-top:8px">灰色日期为未来日期，不可选择</div>
       </div>
       <div class="modal-actions">
-        <button class="btn btn-outline" onclick="goCurrentDay()">今天</button>
+        <button class="btn btn-outline" id="calTodayBtn" onclick="goCurrentDay()">今天</button>
         <button class="btn btn-secondary" onclick="closeCalendar()">关闭</button>
       </div>
     </div>
@@ -100,28 +101,66 @@
   <!-- 底部导航栏 -->
   <nav class="bottom-nav" id="bottomNav">
     <div class="nav-item active" data-page="home">
-      <div class="nav-icon">🏠</div>
+      <div class="nav-icon">
+        <svg viewBox="0 0 64 64" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 44c-4 0-7-3-7-7s3-7 7-7c2 0 3.5 1 5 2l2-1c1.5-1 3-2 5-2 1.5 0 3 .5 4 1.5l2 1.5c1-1 2.5-1.5 4-1.5 3 0 6 3 6 7s-3 6-6 6H36v4l4 4H18l-4-5z" fill="#7CB342" stroke="#558B2F" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="40" cy="32" r="2.5" fill="#333"/>
+          <path d="M24 40v6M28 40v6M32 40v6" stroke="#558B2F" stroke-width="2" stroke-linecap="round"/>
+          <path d="M14 36c-2 0-4-1-5-2.5" stroke="#558B2F" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
       <div class="nav-text">首页</div>
     </div>
     <div class="nav-item" data-page="add">
-      <div class="nav-icon nav-add">➕</div>
+      <div class="nav-icon">
+        <svg viewBox="0 0 64 64" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="12" y="8" width="40" height="48" rx="6" fill="#FF8A65" stroke="#E64A19" stroke-width="2"/>
+          <rect x="18" y="14" width="28" height="12" rx="3" fill="#FFF3E0" stroke="#E64A19" stroke-width="1.5"/>
+          <text x="32" y="23" text-anchor="middle" font-size="9" font-family="Arial" font-weight="bold" fill="#E64A19">0.00</text>
+          <circle cx="22" cy="36" r="3" fill="#FFF3E0" stroke="#E64A19" stroke-width="1.5"/>
+          <circle cx="32" cy="36" r="3" fill="#FFF3E0" stroke="#E64A19" stroke-width="1.5"/>
+          <circle cx="42" cy="36" r="3" fill="#FFF3E0" stroke="#E64A19" stroke-width="1.5"/>
+          <circle cx="22" cy="46" r="3" fill="#FFF3E0" stroke="#E64A19" stroke-width="1.5"/>
+          <circle cx="32" cy="46" r="3" fill="#FFF3E0" stroke="#E64A19" stroke-width="1.5"/>
+          <circle cx="42" cy="46" r="3" fill="#FFCC80" stroke="#E64A19" stroke-width="1.5"/>
+        </svg>
+      </div>
       <div class="nav-text">记一笔</div>
     </div>
     <div class="nav-item" data-page="stats">
-      <div class="nav-icon">📊</div>
+      <div class="nav-icon">
+        <svg viewBox="0 0 64 64" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M28 14h8l3 8h2l3 6v20H22V28l3-6h2l3-8z" fill="#FFD54F" stroke="#F9A825" stroke-width="1.5" stroke-linejoin="round"/>
+          <rect x="26" y="22" width="12" height="10" rx="2" fill="#FFF8E1" stroke="#F9A825" stroke-width="1.5"/>
+          <path d="M28 48v8M36 48v8" stroke="#8D6E63" stroke-width="3" stroke-linecap="round"/>
+          <path d="M20 12l-6-4M44 12l6-4" stroke="#FFD54F" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+      </div>
       <div class="nav-text">统计</div>
     </div>
     <div class="nav-item" data-page="ledger">
-      <div class="nav-icon">📚</div>
+      <div class="nav-icon">
+        <svg viewBox="0 0 64 64" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 14h14a8 8 0 018 8v14a8 8 0 01-8 8H20a6 6 0 01-6-6V20a6 6 0 016-6z" fill="#64B5F6" stroke="#1976D2" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M30 14a8 8 0 018 8M14 20v32a6 6 0 006 6h14a8 8 0 008-8" fill="#90CAF9" stroke="#1976D2" stroke-width="1.5"/>
+          <circle cx="25" cy="30" r="4" fill="#1976D2"/>
+          <circle cx="25" cy="30" r="1.5" fill="#fff"/>
+          <path d="M30 38l4-4 6 6" stroke="#1976D2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
       <div class="nav-text">账本</div>
     </div>
     <div class="nav-item" data-page="me">
-      <div class="nav-icon">👤</div>
+      <div class="nav-icon">
+        <svg viewBox="0 0 64 64" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 8l7 14.5 16 2.3-11.5 11.2 2.7 16L32 43.8 17.8 52l2.7-16L9 24.8 25 22.5 32 8z" fill="#FFD54F" stroke="#F9A825" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
       <div class="nav-text">我的</div>
     </div>
   </nav>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
   <script>
     // 注册 Service Worker
     if ('serviceWorker' in navigator) {

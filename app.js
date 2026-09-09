@@ -259,8 +259,8 @@ function getCategorySpentInPeriod(expenses, catId, setDate) {
     .reduce((s, e) => s + (Number(e.amount) || 0), 0);
 }
 
-// 获取某月各分类统计：预算、已花/已存、结余（预算-已花）
-// 返回 { cats: [{cat, budget, spent, surplus}], totalBudget, totalSpent, totalSurplus }
+// 获取某月各分类统计：预算、已花/已存、结余
+// 结余规则：①非负债非储蓄类=预算-实际 ②储蓄类=实际储蓄 ③负债类=预算还款-实际还款
 function getMonthCategoryStats(ledgerId, ym) {
   const [start, end] = getMonthRange(ym);
   const expenses = state.expenses.filter(e => e.ledgerId === ledgerId && e.date >= start && e.date < end);
@@ -270,11 +270,18 @@ function getMonthCategoryStats(ledgerId, ym) {
   const catStats = cats.map((cat, idx) => {
     const b = Number(budget.cats[cat.id] || 0);
     const s = getCategorySpentInPeriod(expenses, cat.id, period.setDate);
-    return { cat, budget: b, spent: s, surplus: b - s, color: COLORS[idx % COLORS.length] };
+    let surplus;
+    if (cat.kind === 'savings') {
+      surplus = s; // 储蓄：实际储蓄=结余金额
+    } else {
+      surplus = b - s; // 支出/负债：预算-实际=结余金额
+    }
+    return { cat, budget: b, spent: s, surplus, color: COLORS[idx % COLORS.length] };
   });
   const totalBudget = catStats.reduce((sum, c) => sum + c.budget, 0);
   const totalSpent = catStats.reduce((sum, c) => sum + c.spent, 0);
-  return { cats: catStats, totalBudget, totalSpent, totalSurplus: totalBudget - totalSpent, period };
+  const totalSurplus = catStats.reduce((sum, c) => sum + c.surplus, 0);
+  return { cats: catStats, totalBudget, totalSpent, totalSurplus, period };
 }
 
 // 保留2位小数（除不尽时），能整除则显示整数
@@ -409,15 +416,15 @@ function renderHome(app) {
   ym = state.currentMonth;
 
   app.innerHTML = `
+    <div class="home-wrap" id="homeWrap">
     <div class="home-header">
       <div class="home-month">
         <div class="month-switch">
+          <span class="hamburger" onclick="toggleMonthPanel()">☰</span>
           <span class="month-text" onclick="openCalendarPicker()" style="cursor:pointer">${vdY}年${vdM}月${vdD}日</span>
         </div>
-        <div class="ledger-selector" onclick="navigate('ledger')">
-          <span style="margin-right:6px">${ledger.icon}</span>
-          <span>${ledger.name}</span>
-          <span style="margin-left:4px">›</span>
+        <div class="ledger-selector" onclick="toggleLedgerPanel()">
+          <span class="hamburger">☰</span>
         </div>
       </div>
       <div class="summary-cards">
@@ -492,7 +499,128 @@ function renderHome(app) {
       </div>
       ${recentHtml}
     </div>
+    </div>
+
+    <div class="panel-mask" id="panelMask" onclick="closePanels()"></div>
+
+    <div class="slide-panel left-panel" id="monthPanel">
+      <div class="slide-panel-header">
+        <span>📅 已设预算月份</span>
+        <span class="slide-panel-close" onclick="closePanels()">✕</span>
+      </div>
+      ${getMonthPanelHtml(ledger.id)}
+    </div>
+
+    <div class="slide-panel right-panel" id="ledgerPanel">
+      <div class="slide-panel-header">
+        <span>📚 我的账本</span>
+        <span class="slide-panel-close" onclick="closePanels()">✕</span>
+      </div>
+      ${getLedgerPanelHtml()}
+    </div>
   `;
+}
+
+// 生成月份面板内容（纵向排列，显示当前账本已设置预算的月份）
+function getMonthPanelHtml(ledgerId) {
+  const budgetKeys = Object.keys(state.budgets)
+    .filter(k => k.startsWith(ledgerId + '_'))
+    .map(k => k.replace(ledgerId + '_', ''))
+    .sort().reverse();
+  if (budgetKeys.length === 0) {
+    return '<div style="padding:30px;text-align:center;color:#999;font-size:13px">暂无已设预算的月份</div>';
+  }
+  const curYm = state.currentMonth;
+  return budgetKeys.map(ym => {
+    const [y, m] = ym.split('-');
+    const budget = state.budgets[ledgerId + '_' + ym];
+    const total = budget ? Number(budget.total) || 0 : 0;
+    const active = ym === curYm ? 'active' : '';
+    return `<div class="panel-item ${active}" onclick="selectPanelMonth('${ym}')">
+      <span class="panel-item-icon">📆</span>
+      <span class="panel-item-text">${y}年${+m}月</span>
+      <span class="panel-item-sub">¥${fmtMoney(total)}</span>
+    </div>`;
+  }).join('');
+}
+
+// 生成账本面板内容
+function getLedgerPanelHtml() {
+  const ledgers = state.ledgers;
+  if (ledgers.length === 0) {
+    return '<div style="padding:30px;text-align:center;color:#999;font-size:13px">暂无账本</div>';
+  }
+  const curId = state.currentLedgerId;
+  return ledgers.map(l => {
+    const active = l.id === curId ? 'active' : '';
+    return `<div class="panel-item ${active}" onclick="selectPanelLedger('${l.id}')">
+      <span class="panel-item-icon">${l.icon}</span>
+      <span class="panel-item-text">${l.name}</span>
+    </div>`;
+  }).join('') +
+  `<div class="panel-item" onclick="navigate('ledgerCreate')" style="border-top:1px solid #f0f0f0;color:#4A90D9">
+    <span class="panel-item-icon">➕</span>
+    <span class="panel-item-text">新建账本</span>
+  </div>`;
+}
+
+function toggleMonthPanel() {
+  const wp = $('homeWrap');
+  const lp = $('monthPanel');
+  const mask = $('panelMask');
+  const isOpen = lp.classList.contains('open');
+  closePanels();
+  if (!isOpen) {
+    wp.classList.add('shift-right');
+    lp.classList.add('open');
+    mask.classList.add('show');
+  }
+}
+
+function toggleLedgerPanel() {
+  const wp = $('homeWrap');
+  const rp = $('ledgerPanel');
+  const mask = $('panelMask');
+  const isOpen = rp.classList.contains('open');
+  closePanels();
+  if (!isOpen) {
+    wp.classList.add('shift-left');
+    rp.classList.add('open');
+    mask.classList.add('show');
+  }
+}
+
+function closePanels() {
+  const wp = $('homeWrap');
+  if (wp) { wp.classList.remove('shift-left', 'shift-right'); }
+  const lp = $('monthPanel');
+  if (lp) lp.classList.remove('open');
+  const rp = $('ledgerPanel');
+  if (rp) rp.classList.remove('open');
+  const mask = $('panelMask');
+  if (mask) mask.classList.remove('show');
+}
+
+function selectPanelMonth(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  state.currentMonth = ym;
+  state.viewDate = new Date(y, m - 1, 1).getTime();
+  save();
+  closePanels();
+  render();
+}
+
+function selectPanelLedger(ledgerId) {
+  state.currentLedgerId = ledgerId;
+  const ledger = getCurrentLedger();
+  if (ledger && ledger.defaultMonth) {
+    state.currentMonth = ledger.defaultMonth;
+    const [y, m] = ledger.defaultMonth.split('-').map(Number);
+    state.viewDate = new Date(y, m - 1, 1).getTime();
+  }
+  save();
+  closePanels();
+  render();
 }
 
 function changeMonth(delta) {
@@ -561,7 +689,7 @@ function renderCalendarGrid() {
   const today = new Date();
   const todayStr = today.toDateString();
   let curStr;
-  if (calMode === 'home' || calMode === 'stats') {
+  if (calMode === 'home' || calMode === 'stats' || calMode === 'budgetMonth') {
     curStr = new Date(state.viewDate).toDateString();
   } else if (calMode === 'editExpense') {
     curStr = editExpenseState.date ? new Date(editExpenseState.date).toDateString() : today.toDateString();
@@ -580,6 +708,7 @@ function renderCalendarGrid() {
     let handler;
     if (calMode === 'home') handler = `setViewDate(${ts});closeCalendar()`;
     else if (calMode === 'stats') handler = `setStatsDate(${ts})`;
+    else if (calMode === 'budgetMonth') handler = `setBudgetMonthDate(${ts})`;
     else if (calMode === 'editExpense') handler = `setEditExpenseDate(${ts})`;
     else handler = `setExpenseDate(${ts})`;
     cells += `<div class="cal-cell ${isCur ? 'cur' : ''} ${isToday ? 'today' : ''}"
@@ -611,6 +740,15 @@ function setStatsDate(ts) {
   save();
   closeCalendar();
   render();
+}
+
+function setBudgetMonthDate(ts) {
+  const d = new Date(ts);
+  state.viewDate = d.getTime();
+  state.currentMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  save();
+  closeCalendar();
+  navigate('budgetAllocate');
 }
 
 function closeCalendar() { $('calendarModal').classList.remove('show'); }
@@ -790,9 +928,18 @@ function renderMonthSummary(app, params) {
       </div>` : ''}
 
     <div style="padding:16px">
-      <button class="btn btn-primary btn-block" onclick="navigate('budgetAllocate')">去设置下月预算 ›</button>
+      <button class="btn btn-primary btn-block" onclick="goSetNextMonthBudget()">去设置下月预算 ›</button>
     </div>
   `;
+}
+
+// 跳转到下月预算设置页面
+function goSetNextMonthBudget() {
+  const [y, m] = state.currentMonth.split('-').map(Number);
+  const d = new Date(y, m, 1); // m 不加1，因为 Date 的 month 从0开始，m月的下月就是 m
+  state.currentMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  state.viewDate = d.getTime();
+  navigate('budgetAllocate');
 }
 
 function getCurrentLedger() {
@@ -1078,8 +1225,10 @@ function getStatsAggregation(type, ledgerId) {
   const savingsBudget = catData.filter(d => d.isSavings).reduce((s, d) => s + d.budget, 0);
   // 实际支出 = 总支出 - 储蓄类支出（起始金额是已有存款，不算支出）
   const actualExpense = totalSpent - savingsFromExpenses;
-  // 结余 = 除储蓄外各类别(预算-支出) + 储蓄金额（含起始金额）
-  const surplus = catData.filter(d => !d.isSavings).reduce((s, d) => s + (d.budget - d.spent), 0) + totalSavings;
+  // 结余 = ①非负债非储蓄类(预算-支出) + ②储蓄实际金额 + ③负债类(预算-支出)
+  // 仅全部视图才含起始金额；月/日/年视图的储蓄结余只含当期实际储蓄
+  const savingsSurplus = (type === 'total') ? totalSavings : savingsFromExpenses;
+  const surplus = catData.filter(d => !d.isSavings).reduce((s, d) => s + (d.budget - d.spent), 0) + savingsSurplus;
 
   // 今日总预算 = 本月剩余可支配金额（功能1）
   let displayBudget = totalBudget;
@@ -1450,9 +1599,15 @@ function renderBudgetAllocate(app) {
     <div class="page-header">
       <div style="display:flex;align-items:center" onclick="window._syncBudget();save();navigate('ledger')">
         <span style="font-size:20px;margin-right:10px">‹</span>
-        <span class="page-title">预算分配 - ${y}年${+m}月</span>
+        <span class="page-title">预算分配</span>
       </div>
       <div class="cat-manage-btn" onclick="navigate('catManage')">管理分类</div>
+    </div>
+
+    <div class="budget-month-selector">
+      <span class="budget-month-nav" onclick="changeBudgetMonth(-1)">‹</span>
+      <span class="budget-month-label" onclick="openBudgetMonthPicker()">${y}年${+m}月 ▾</span>
+      <span class="budget-month-nav" onclick="changeBudgetMonth(1)">›</span>
     </div>
 
     <div class="budget-total">
@@ -1548,6 +1703,28 @@ function renderBudgetAllocate(app) {
   `;
 }
 
+// 预算分配页切换月份
+function changeBudgetMonth(delta) {
+  if (window._syncBudget) window._syncBudget();
+  save();
+  const [y, m] = state.currentMonth.split('-').map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  state.currentMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  state.viewDate = d.getTime();
+  render();
+}
+
+// 预算分配页打开月份选择器（用日历选具体日期，月份随之切换）
+function openBudgetMonthPicker() {
+  if (window._syncBudget) window._syncBudget();
+  save();
+  calMode = 'budgetMonth';
+  const base = state.viewDate ? new Date(state.viewDate) : new Date();
+  calCursor = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+  renderCalendarGrid();
+  $('calendarModal').classList.add('show');
+}
+
 // 一键应用上月结转：将结转金额加到各分类当前输入值上
 function applyCarryover() {
   const ledger = getCurrentLedger();
@@ -1573,15 +1750,8 @@ function saveBudget() {
   const key = ledger.id + '_' + state.currentMonth;
   const budget = state.budgets[key];
   if (budget) {
-    // 功能2：已过月份以用户左上角选择的日期为第一日；当月以设置当日为第一日
-    const now = new Date();
-    const curYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    if (state.currentMonth === curYm) {
-      budget.setDate = Date.now();
-    } else {
-      // 已过月份：使用用户在首页选择的日期作为周期起点
-      budget.setDate = state.viewDate || Date.now();
-    }
+    // 功能2：无论是当月还是已过月份，均以用户左上角选择的日期为第一日
+    budget.setDate = state.viewDate || Date.now();
   }
   save();
   toast('预算已保存 💪');
@@ -1798,6 +1968,18 @@ function renderMe(app) {
         <div class="menu-value">${state.expenses.filter(e => !e.categoryId).length} 笔</div>
         <div class="menu-arrow">›</div>
       </div>
+      ${isApp() ? `
+      <div class="menu-item" onclick="checkNotificationPermission()">
+        <div class="menu-icon">📱</div>
+        <div class="menu-label">支付追踪（自动记账）</div>
+        <div class="menu-value">${getPaymentStatusText()}</div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="fetchLastPayment()">
+        <div class="menu-icon">🧾</div>
+        <div class="menu-label">补录最近一笔支付</div>
+        <div class="menu-arrow">›</div>
+      </div>` : ''}
     </div>
 
     <div class="menu-list">
@@ -2467,6 +2649,73 @@ function checkReminder() {
 }
 
 // ============ 启动 ============
+// ============ 支付追踪（仅 App 版） ============
+function isApp() {
+  return typeof window.LedgerBridge !== 'undefined';
+}
+
+// 原生通知支付 → 自动记账
+window.onNativePayment = function (info) {
+  if (!info || !info.amount) return;
+  const ledger = getCurrentLedger();
+  if (!ledger) return;
+  const amount = Math.round(Number(info.amount) * 100) / 100;
+  if (amount <= 0) return;
+  const ts = info.time || Date.now();
+  const e = {
+    id: uid('E'),
+    ledgerId: ledger.id,
+    amount: amount,
+    note: info.merchant ? `${info.source || ''}支付-${info.merchant}` : (info.source || '自动记账'),
+    date: ts,
+    categoryId: null,
+    subCategoryId: null,
+    paymentMethod: info.source || '',
+    merchant: info.merchant || '',
+    isIncome: !!info.isIncome,
+    autoTracked: true
+  };
+  state.expenses.push(e);
+  save();
+  toast(`自动记账：${info.source || ''} ¥${fmtMoney(amount)}`);
+  // 跳转至分类页让用户补充分类
+  setTimeout(() => {
+    if (currentPage === 'classifyList') render();
+  }, 300);
+};
+
+// 获取最近一条支付通知（手动补录）
+function fetchLastPayment() {
+  if (!isApp()) return;
+  try {
+    const json = window.LedgerBridge.getLastPayment();
+    if (!json) { toast('暂无待补录的支付通知'); return; }
+    const info = JSON.parse(json);
+    window.onNativePayment(info);
+    render();
+  } catch (e) { toast('获取支付信息失败'); }
+}
+
+// 检查并跳转通知权限设置
+function checkNotificationPermission() {
+  if (!isApp()) return;
+  try {
+    if (window.LedgerBridge.isNotificationEnabled()) {
+      toast('通知监听已开启 ✅');
+    } else {
+      window.LedgerBridge.openNotificationSettings();
+    }
+  } catch (e) {}
+}
+
+// 支付追踪状态文案
+function getPaymentStatusText() {
+  if (!isApp()) return '';
+  try {
+    return window.LedgerBridge.isNotificationEnabled() ? '已开启' : '未开启';
+  } catch (e) { return '未开启'; }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // 底部导航点击
   document.querySelectorAll('.nav-item').forEach(el => {

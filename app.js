@@ -1968,30 +1968,6 @@ function renderMe(app) {
         <div class="menu-value">${state.expenses.filter(e => !e.categoryId).length} 笔</div>
         <div class="menu-arrow">›</div>
       </div>
-      ${isApp() ? `
-      <div class="menu-item" onclick="checkAccessibilityPermission()">
-        <div class="menu-icon">🔍</div>
-        <div class="menu-label">支付监测（无障碍）</div>
-        <div class="menu-value">${getAccessibilityStatusText()}</div>
-        <div class="menu-arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="checkNotificationPermission()">
-        <div class="menu-icon">📱</div>
-        <div class="menu-label">通知监听（备用）</div>
-        <div class="menu-value">${getPaymentStatusText()}</div>
-        <div class="menu-arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="navigate('classifyList')">
-        <div class="menu-icon">📊</div>
-        <div class="menu-label">今日自动记录</div>
-        <div class="menu-value">${getTodayPaymentCount()} 笔</div>
-        <div class="menu-arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="fetchLastPayment()">
-        <div class="menu-icon">🧾</div>
-        <div class="menu-label">补录最近一笔支付</div>
-        <div class="menu-arrow">›</div>
-      </div>` : ''}
     </div>
 
     <div class="menu-list">
@@ -2661,115 +2637,8 @@ function checkReminder() {
 }
 
 // ============ 启动 ============
-// ============ 支付追踪（仅 App 版） ============
 function isApp() {
   return typeof window.LedgerBridge !== 'undefined';
-}
-
-// 原生通知支付 → 自动记账
-window.onNativePayment = function (info) {
-  if (!info || !info.amount) return;
-  const ledger = getCurrentLedger();
-  if (!ledger) return;
-  const amount = Math.round(Number(info.amount) * 100) / 100;
-  if (amount <= 0) return;
-  const ts = info.time || Date.now();
-  const e = {
-    id: uid('E'),
-    ledgerId: ledger.id,
-    amount: amount,
-    note: info.merchant ? `${info.source || ''}支付-${info.merchant}` : (info.source || '自动记账'),
-    date: ts,
-    categoryId: null,
-    subCategoryId: null,
-    paymentMethod: info.source || '',
-    merchant: info.merchant || '',
-    isIncome: !!info.isIncome,
-    autoTracked: true
-  };
-  state.expenses.push(e);
-  save();
-  toast(`自动记账：${info.source || ''} ¥${fmtMoney(amount)}`);
-  // 跳转至分类页让用户补充分类
-  setTimeout(() => {
-    if (currentPage === 'classifyList') render();
-  }, 300);
-};
-
-// 获取最近一条支付通知（手动补录）
-function fetchLastPayment() {
-  if (!isApp()) return;
-  try {
-    const json = window.LedgerBridge.getLastPayment();
-    if (!json) { toast('暂无待补录的支付通知'); return; }
-    const info = JSON.parse(json);
-    window.onNativePayment(info);
-    render();
-  } catch (e) { toast('获取支付信息失败'); }
-}
-
-// 检查并跳转通知权限设置
-function checkNotificationPermission() {
-  if (!isApp()) return;
-  try {
-    if (window.LedgerBridge.isNotificationEnabled()) {
-      toast('通知监听已开启 ✅');
-    } else {
-      window.LedgerBridge.openNotificationSettings();
-    }
-  } catch (e) {}
-}
-
-// 支付追踪状态文案
-function getPaymentStatusText() {
-  if (!isApp()) return '';
-  try {
-    const notif = window.LedgerBridge.isNotificationEnabled();
-    const a11y = window.LedgerBridge.isAccessibilityEnabled();
-    if (notif && a11y) return '已开启';
-    if (notif || a11y) return '部分开启';
-    return '未开启';
-  } catch (e) { return '未开启'; }
-}
-
-// 无障碍服务状态文案
-function getAccessibilityStatusText() {
-  if (!isApp()) return '';
-  try {
-    return window.LedgerBridge.isAccessibilityEnabled() ? '已开启' : '未开启';
-  } catch (e) { return '未开启'; }
-}
-
-// 检查并跳转无障碍服务设置
-function checkAccessibilityPermission() {
-  if (!isApp()) return;
-  try {
-    if (window.LedgerBridge.isAccessibilityEnabled()) {
-      toast('无障碍支付监测已开启 ✅');
-    } else {
-      toast('请在设置中找到"记账本支付监测"并开启');
-      window.LedgerBridge.openAccessibilitySettings();
-    }
-  } catch (e) {}
-}
-
-// 获取今日自动记录的支付笔数
-function getTodayPaymentCount() {
-  if (!isApp()) return 0;
-  try {
-    return window.LedgerBridge.getTodayPaymentCount();
-  } catch (e) { return 0; }
-}
-
-// 每日提醒：App 启动时检查是否有未分类支出需要处理
-function checkDailyUncategorized() {
-  if (!isApp()) return;
-  const today = new Date();
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
-  const uncategorized = state.expenses.filter(e => e.autoTracked && !e.categoryId && e.date >= todayStart);
-  if (uncategorized.length > 0) {
-    toast(`今天有 ${uncategorized.length} 笔支付待分类，去分类 ›`);
-  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -2787,6 +2656,4 @@ document.addEventListener('DOMContentLoaded', () => {
   navigate('home', { scrollTop: 0 });
   // 检查提醒
   setTimeout(checkReminder, 1000);
-  // App 版：检查今日未分类支付
-  setTimeout(checkDailyUncategorized, 2000);
 });

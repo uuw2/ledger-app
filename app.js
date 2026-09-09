@@ -1969,10 +1969,22 @@ function renderMe(app) {
         <div class="menu-arrow">›</div>
       </div>
       ${isApp() ? `
+      <div class="menu-item" onclick="checkAccessibilityPermission()">
+        <div class="menu-icon">🔍</div>
+        <div class="menu-label">支付监测（无障碍）</div>
+        <div class="menu-value">${getAccessibilityStatusText()}</div>
+        <div class="menu-arrow">›</div>
+      </div>
       <div class="menu-item" onclick="checkNotificationPermission()">
         <div class="menu-icon">📱</div>
-        <div class="menu-label">支付追踪（自动记账）</div>
+        <div class="menu-label">通知监听（备用）</div>
         <div class="menu-value">${getPaymentStatusText()}</div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="navigate('classifyList')">
+        <div class="menu-icon">📊</div>
+        <div class="menu-label">今日自动记录</div>
+        <div class="menu-value">${getTodayPaymentCount()} 笔</div>
         <div class="menu-arrow">›</div>
       </div>
       <div class="menu-item" onclick="fetchLastPayment()">
@@ -2712,8 +2724,52 @@ function checkNotificationPermission() {
 function getPaymentStatusText() {
   if (!isApp()) return '';
   try {
-    return window.LedgerBridge.isNotificationEnabled() ? '已开启' : '未开启';
+    const notif = window.LedgerBridge.isNotificationEnabled();
+    const a11y = window.LedgerBridge.isAccessibilityEnabled();
+    if (notif && a11y) return '已开启';
+    if (notif || a11y) return '部分开启';
+    return '未开启';
   } catch (e) { return '未开启'; }
+}
+
+// 无障碍服务状态文案
+function getAccessibilityStatusText() {
+  if (!isApp()) return '';
+  try {
+    return window.LedgerBridge.isAccessibilityEnabled() ? '已开启' : '未开启';
+  } catch (e) { return '未开启'; }
+}
+
+// 检查并跳转无障碍服务设置
+function checkAccessibilityPermission() {
+  if (!isApp()) return;
+  try {
+    if (window.LedgerBridge.isAccessibilityEnabled()) {
+      toast('无障碍支付监测已开启 ✅');
+    } else {
+      toast('请在设置中找到"记账本支付监测"并开启');
+      window.LedgerBridge.openAccessibilitySettings();
+    }
+  } catch (e) {}
+}
+
+// 获取今日自动记录的支付笔数
+function getTodayPaymentCount() {
+  if (!isApp()) return 0;
+  try {
+    return window.LedgerBridge.getTodayPaymentCount();
+  } catch (e) { return 0; }
+}
+
+// 每日提醒：App 启动时检查是否有未分类支出需要处理
+function checkDailyUncategorized() {
+  if (!isApp()) return;
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const uncategorized = state.expenses.filter(e => e.autoTracked && !e.categoryId && e.date >= todayStart);
+  if (uncategorized.length > 0) {
+    toast(`今天有 ${uncategorized.length} 笔支付待分类，去分类 ›`);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -2731,4 +2787,6 @@ document.addEventListener('DOMContentLoaded', () => {
   navigate('home', { scrollTop: 0 });
   // 检查提醒
   setTimeout(checkReminder, 1000);
+  // App 版：检查今日未分类支付
+  setTimeout(checkDailyUncategorized, 2000);
 });

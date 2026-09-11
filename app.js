@@ -608,23 +608,25 @@ function getMonthPanelHtml(ledgerId) {
   }).join('');
 }
 
-// 生成账本面板内容
+// 生成账本面板内容（横向排列）
 function getLedgerPanelHtml() {
   const ledgers = state.ledgers;
   if (ledgers.length === 0) {
     return '<div style="padding:30px;text-align:center;color:#999;font-size:13px">暂无账本</div>';
   }
   const curId = state.currentLedgerId;
-  return ledgers.map(l => {
+  const items = ledgers.map(l => {
     const active = l.id === curId ? 'active' : '';
-    return `<div class="panel-item ${active}" onclick="selectPanelLedger('${l.id}')">
+    return `<div class="ledger-chip ${active}" onclick="selectPanelLedger('${l.id}')">
       <span class="panel-item-icon">${icon(l.icon)}</span>
       <span class="panel-item-text">${l.name}</span>
     </div>`;
-  }).join('') +
-  `<div class="panel-item" onclick="navigate('ledgerCreate')" style="border-top:1px solid #f0f0f0;color:#4A90D9">
-    <span class="panel-item-icon">${ICONS.plus}</span>
-    <span class="panel-item-text">新建账本</span>
+  }).join('');
+  return `<div class="ledger-chip-row">${items}
+    <div class="ledger-chip" onclick="navigate('ledgerCreate')" style="color:#4A90D9;border:1px dashed #4A90D9">
+      <span class="panel-item-icon">${ICONS.plus}</span>
+      <span class="panel-item-text">新建</span>
+    </div>
   </div>`;
 }
 

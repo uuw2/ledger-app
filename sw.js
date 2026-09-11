@@ -1,5 +1,5 @@
 /* 简洁记账 Service Worker - 离线缓存 */
-const CACHE_NAME = 'ledger-cache-v15';
+const CACHE_NAME = 'ledger-cache-v16';
 const PRECACHE_URLS = [
   './',
   './index.html',

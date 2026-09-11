@@ -1476,8 +1476,8 @@ function renderLedger(app) {
     const isActive = state.currentLedgerId === l.id;
     return `
       <div class="ledger-card ${isActive ? 'active' : ''}" onclick="switchLedger('${l.id}')">
-        <div class="ledger-card-bg">${l.icon}</div>
-        <div class="ledger-icon">${l.icon}</div>
+        <div class="ledger-card-bg">${icon(l.icon)}</div>
+        <div class="ledger-icon">${icon(l.icon)}</div>
         <div class="ledger-info">
           <div class="ledger-name">${l.name}${isActive ? ' <span style="color:#4A90D9;font-size:11px;font-weight:normal">使用中</span>' : ''}</div>
           <div class="ledger-budget">预算 ¥${fmtMoney(total)} · 已支 ¥${fmtMoney(spent)}</div>

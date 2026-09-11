@@ -19,7 +19,71 @@ const Store = {
 };
 
 // ============ 配色（饼图用） ============
-const COLORS = ['#FF6B9D', '#4ECDC4', '#FFD93D', '#6BCB77', '#4D96FF', '#FF8E53', '#C780FA', '#FF6B6B', '#45B7D1', '#96CEB4'];
+const COLORS = ['#333333', '#666666', '#999999', '#555555', '#777777', '#444444', '#888888', '#222222', '#5a5a5a', '#6a6a6a'];
+
+// ============ SVG 图标库 ============
+const ICONS = {
+  menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
+  note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>',
+  coin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M15 9H11a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4H9"/></svg>',
+  book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>',
+  inbox: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  briefcase: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',
+  // 分类图标
+  food: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M3 11v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8M9 15h6"/></svg>',
+  transport: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3V6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v11h-2"/><path d="M14 9h4l3 3v5h-2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>',
+  home2: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>',
+  entertainment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>',
+  medical: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>',
+  shopping: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>',
+  travel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>',
+  gift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v8h14v-8M12 8S9 2 7 4s1 4 5 4c4 0 6-2 5-4s-5 0-5 4z"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+  lightbulb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg>',
+  fitness: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M7 17l-3 3M17 7l3-3"/></svg>',
+  card: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
+  family: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="8" r="2.5"/><path d="M3 21c0-3.5 2.7-6 6-6s6 2.5 6 6M15 21c0-2.5 1.8-4.5 4-4.5"/></svg>',
+  education: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>',
+  plane: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3 7 7 .6-5.3 4.6L18 22l-6-4-6 4 1.3-7.8L2 9.6 9 9z"/></svg>',
+  // 默认圆形图标（通用）
+  dot: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/></svg>',
+};
+
+// emoji 到 SVG 图标的映射（用于分类等数据中存储的 emoji）
+const EMOJI_TO_ICON = {
+  '🍜':'food','🍔':'food','🍕':'food','🍞':'food','🥘':'food','🍱':'food',
+  '🚗':'transport','🚕':'transport','🚌':'transport','✈️':'travel','🚇':'transport','🛵':'transport',
+  '🏠':'home2','🏡':'home2','🏘️':'home2',
+  '🎮':'entertainment','🎬':'entertainment','🎵':'entertainment','🎧':'entertainment',
+  '💊':'medical','💉':'medical','🏥':'medical','🩺':'medical',
+  '🛍️':'shopping','👔':'shopping','👕':'shopping','💄':'shopping',
+  '✈️':'travel','🧳':'travel','🚄':'travel','🚂':'travel',
+  '🎁':'gift','💝':'gift',
+  '❤️':'heart','💖':'heart','💕':'heart',
+  '💡':'lightbulb','🔌':'lightbulb',
+  '💪':'fitness','🏋️':'fitness','🏃':'fitness','🧘':'fitness',
+  '💳':'card','💸':'card','🏦':'card',
+  '💰':'coin','💵':'coin','💴':'coin','🪙':'coin',
+  '📚':'book','📖':'book','🎓':'education',
+  '💼':'briefcase','👨‍👩‍👧':'family','👨‍👩‍👧‍👦':'family',
+  '🌴':'travel','🏖️':'travel','⛰️':'travel',
+  '⭐':'star','🌟':'star',
+};
+
+// 将 emoji 或图标 key 转为 SVG
+function icon(key) {
+  if (!key) return ICONS.dot;
+  if (ICONS[key]) return ICONS[key];
+  if (EMOJI_TO_ICON[key]) return ICONS[EMOJI_TO_ICON[key]];
+  return ICONS.dot;
+}
 
 // ============ 皮肤配色 ============
 const SKIN_COLORS = {
@@ -384,7 +448,7 @@ function renderHome(app) {
     catProgressHtml += `
       <div class="progress-item">
         <div class="progress-head">
-          <span>${cat.emoji} ${cat.name}${kindTag !== '支出' ? ` <span style="font-size:10px;color:#999">(${kindTag})</span>` : ''}</span>
+          <span>${icon(cat.emoji)} ${cat.name}${kindTag !== '支出' ? ` <span style="font-size:10px;color:#999">(${kindTag})</span>` : ''}</span>
           <span class="${over ? 'text-danger' : 'text-muted'}">¥${fmtMoney(catSpent)} / ¥${fmtMoney(catBudget)} <span style="font-size:11px">(${catBudget - catSpent >= 0 ? '剩余' : '超支'} ¥${fmtMoney(Math.abs(catBudget - catSpent))})</span></span>
         </div>
         <div class="progress-bar">
@@ -404,7 +468,7 @@ function renderHome(app) {
   // 最近支出（最近5条）
   const recent = [...expenses].sort((a, b) => b.date - a.date).slice(0, 5);
   const recentHtml = recent.length ? recent.map(renderExpenseItem).join('') :
-    '<div class="empty" style="padding:30px 0"><div class="empty-icon">📝</div><div>本月还没有记录哦</div></div>';
+    '<div class="empty" style="padding:30px 0"><div class="empty-icon">${ICONS.note}</div><div>本月还没有记录哦</div></div>';
 
   // 日期导航（基于 viewDate）
   const vd = new Date(state.viewDate);
@@ -420,11 +484,11 @@ function renderHome(app) {
     <div class="home-header">
       <div class="home-month">
         <div class="month-switch">
-          <span class="hamburger" onclick="toggleMonthPanel()">☰</span>
+          <span class="hamburger" onclick="toggleMonthPanel()">${ICONS.menu}</span>
           <span class="month-text" onclick="openCalendarPicker()" style="cursor:pointer">${vdY}年${vdM}月${vdD}日</span>
         </div>
         <div class="ledger-selector" onclick="toggleLedgerPanel()">
-          <span class="hamburger">☰</span>
+          <span class="hamburger">${ICONS.menu}</span>
         </div>
       </div>
       <div class="summary-cards">
@@ -450,7 +514,7 @@ function renderHome(app) {
     ${unclassifiedCount > 0 ? `
       <div class="unclassified-banner" onclick="navigate('classifyList')">
         <div class="unclassified-left">
-          <span>⏰</span>
+          <span>${ICONS.bell}</span>
           <span>您有 ${unclassifiedCount} 笔支出未分类</span>
           <span class="unclassified-count">去分类</span>
         </div>
@@ -480,14 +544,14 @@ function renderHome(app) {
       </div>
       <div class="progress-card">
         <div class="period-info">
-          📅 预算周期：${period.setDate.getFullYear()}/${period.setDate.getMonth()+1}/${period.setDate.getDate()} 起，共 ${period.periodDays} 天 · 已过 ${period.daysPassed} 天 · 剩 ${period.remainingDays} 天
+          ${ICONS.calendar} 预算周期：${period.setDate.getFullYear()}/${period.setDate.getMonth()+1}/${period.setDate.getDate()} 起，共 ${period.periodDays} 天 · 已过 ${period.daysPassed} 天 · 剩 ${period.remainingDays} 天
           <span style="float:right;cursor:pointer;color:#4A90D9" onclick="navigate('monthSummary')">📊 本月总结 ›</span>
         </div>
         ${catProgressHtml}
       </div>
     </div>` : `
     <div class="card mt-16" style="text-align:center">
-      <div style="font-size:40px;margin-bottom:8px">💰</div>
+      <div style="font-size:32px;margin-bottom:8px;color:#1d1d1f">${ICONS.coin}</div>
       <div style="color:#666;margin-bottom:12px">还没有设置${vdY}年${vdM}月预算</div>
       <button class="btn btn-primary" onclick="navigate('budgetAllocate')">立即分配</button>
     </div>`}
@@ -505,16 +569,16 @@ function renderHome(app) {
 
     <div class="slide-panel left-panel" id="monthPanel">
       <div class="slide-panel-header">
-        <span>📅 已设预算月份</span>
-        <span class="slide-panel-close" onclick="closePanels()">✕</span>
+        <span style="display:inline-flex;align-items:center;gap:6px">${ICONS.calendar} 已设预算月份</span>
+        <span class="slide-panel-close" onclick="closePanels()">${ICONS.close}</span>
       </div>
       ${getMonthPanelHtml(ledger.id)}
     </div>
 
     <div class="slide-panel right-panel" id="ledgerPanel">
       <div class="slide-panel-header">
-        <span>📚 我的账本</span>
-        <span class="slide-panel-close" onclick="closePanels()">✕</span>
+        <span style="display:inline-flex;align-items:center;gap:6px">${ICONS.book} 我的账本</span>
+        <span class="slide-panel-close" onclick="closePanels()">${ICONS.close}</span>
       </div>
       ${getLedgerPanelHtml()}
     </div>
@@ -559,7 +623,7 @@ function getLedgerPanelHtml() {
     </div>`;
   }).join('') +
   `<div class="panel-item" onclick="navigate('ledgerCreate')" style="border-top:1px solid #f0f0f0;color:#4A90D9">
-    <span class="panel-item-icon">➕</span>
+    <span class="panel-item-icon">${ICONS.plus}</span>
     <span class="panel-item-text">新建账本</span>
   </div>`;
 }
@@ -858,7 +922,7 @@ function renderMonthSummary(app, params) {
     return `
       <div class="summary-bar-item">
         <div class="summary-bar-head">
-          <span>${c.cat.emoji} ${c.cat.name}</span>
+          <span>${icon(c.cat.emoji)} ${c.cat.name}</span>
           <span style="color:${surplusClr};font-weight:600">${surplusText}</span>
         </div>
         <div class="summary-bars">
@@ -907,7 +971,7 @@ function renderMonthSummary(app, params) {
           <div class="summary-total-val" style="color:${surplusColor}">¥${fmtMoney(Math.abs(totalSurplus))}</div>
         </div>
       </div>
-      ${isPeriodEnd ? '<div class="summary-tip">🎉 本月周期已结束，可参考下方数据规划下月预算</div>' : ''}
+      ${isPeriodEnd ? '<div class="summary-tip">本月周期已结束，可参考下方数据规划下月预算</div>' : ''}
     </div>
 
     <div style="padding:0 16px">
@@ -958,11 +1022,11 @@ function getSubCategoryById(ledgerId, catId, subId) {
 
 function renderExpenseItem(e) {
   const classified = !!e.categoryId;
-  let icon = '❓', catName = '未分类', subName = '';
+  let expIcon = '', catName = '未分类', subName = '';
   if (classified) {
     const cat = getCategoryById(e.ledgerId, e.categoryId);
     if (cat) {
-      icon = cat.emoji;
+      expIcon = cat.emoji;
       catName = cat.name;
       if (e.subCategoryId) {
         const sub = getSubCategoryById(e.ledgerId, e.categoryId, e.subCategoryId);
@@ -973,7 +1037,7 @@ function renderExpenseItem(e) {
   const note = e.note ? (subName ? subName + ' · ' + e.note : e.note) : subName;
   return `
     <div class="expense-item ${classified ? '' : 'expense-unclassified'}" onclick="navigate('expenseDetail',{id:'${e.id}'})">
-      <div class="expense-icon">${icon}</div>
+      <div class="expense-icon">${icon(expIcon)}</div>
       <div class="expense-info">
         <div class="expense-cat">${catName}${classified ? '' : ' <span style="color:#f39c12;font-size:11px">(待分类)</span>'}</div>
         <div class="expense-sub">${note || fmtDate(e.date)}</div>
@@ -1032,7 +1096,7 @@ function renderAdd(app) {
           ${cats.map(c => `
             <div class="cat-item ${addPageState.selectedCatId === c.id ? 'selected' : ''}"
               onclick="selectCat('${c.id}')">
-              <div class="cat-emoji">${c.emoji}</div>
+              <div class="cat-emoji">${icon(c.emoji)}</div>
               <div class="cat-name">${c.name}</div>
             </div>`).join('')}
         </div>
@@ -1132,7 +1196,7 @@ function saveExpense() {
   state.viewDate = expenseTs;
   state.currentMonth = `${eDate.getFullYear()}-${String(eDate.getMonth() + 1).padStart(2, '0')}`;
   save();
-  toast('记账成功 🎉');
+  toast('记账成功');
   // 重置表单
   addPageState.amount = '';
   addPageState.note = '';
@@ -1293,7 +1357,7 @@ function renderStats(app, params = {}) {
     return `
       <div class="bar-row">
         <div class="bar-row-head">
-          <span class="bar-cat-emoji">${d.cat.emoji}</span>
+          <span class="bar-cat-emoji">${icon(d.cat.emoji)}</span>
           <span class="bar-cat-name">${d.cat.name}${d.isSavings ? ' <span style="font-size:10px;color:#27ae60">(储蓄)</span>' : ''}</span>
           <span class="bar-share">${ratioPct.toFixed(2)}%</span>
         </div>
@@ -1314,12 +1378,12 @@ function renderStats(app, params = {}) {
           </div>
         </div>
       </div>`;
-  }).join('') : '<div class="empty" style="padding:30px 0"><div class="empty-icon">📭</div><div>暂无数据</div></div>';
+  }).join('') : '<div class="empty" style="padding:30px 0"><div class="empty-icon">${ICONS.inbox}</div><div>暂无数据</div></div>';
 
   const unclassifiedHtml = unclassifiedSpent > 0 ? `
     <div class="bar-row" style="opacity:0.7">
       <div class="bar-row-head">
-        <span class="bar-cat-emoji">❓</span>
+        <span class="bar-cat-emoji">${ICONS.dot}</span>
         <span class="bar-cat-name">未分类支出</span>
         <span class="bar-share">—</span>
       </div>
@@ -1440,7 +1504,7 @@ function renderLedger(app) {
     <div class="ledger-list">
       ${html}
       <div class="add-ledger-card" onclick="navigate('ledgerCreate')">
-        ➕ 新建账本（如：零花钱账本、副业主账本）
+        ${ICONS.plus} 新建账本（如：零花钱账本、副业主账本）
       </div>
     </div>
   `;
@@ -1492,8 +1556,8 @@ function renderLedgerCreate(app, params = {}) {
         <div class="label mb-12">选择图标</div>
         <div class="cat-grid" id="iconGrid">
           ${icons.map(ic => `
-            <div class="cat-item ${selectedIcon === ic ? 'selected' : ''}" onclick="selectIcon('${ic}')">
-              <div class="cat-emoji">${ic}</div>
+            <div class="cat-item ${selectedIcon === ic ? 'selected' : ''}" data-ic="${ic}" onclick="selectIcon('${ic}')">
+              <div class="cat-emoji">${icon(ic)}</div>
               <div class="cat-name">${ic}</div>
             </div>`).join('')}
         </div>
@@ -1509,7 +1573,7 @@ function renderLedgerCreate(app, params = {}) {
 function selectIcon(ic) {
   window._selectedIcon = ic;
   document.querySelectorAll('#iconGrid .cat-item').forEach(el => {
-    el.classList.toggle('selected', el.querySelector('.cat-emoji').textContent === ic);
+    el.classList.toggle('selected', el.dataset.ic === ic);
   });
 }
 
@@ -1658,7 +1722,7 @@ function renderBudgetAllocate(app) {
           <div class="budget-cat-item">
             <div class="budget-cat-head">
               <div class="budget-cat-left">
-                <span class="budget-cat-emoji">${c.emoji}</span>
+                <span class="budget-cat-emoji">${icon(c.emoji)}</span>
                 <div>
                   <div class="budget-cat-name">${c.name}</div>
                   <div style="font-size:11px;color:#999;margin-top:2px">
@@ -1793,7 +1857,7 @@ function renderCatManage(app) {
         return `
         <div class="manage-cat-section">
           <div class="manage-cat-title">
-            <span class="manage-cat-name-line">${c.emoji} ${c.name}
+            <span class="manage-cat-name-line">${icon(c.emoji)} ${c.name}
               <span style="font-size:10px;color:${kindColor};margin-left:4px">${kindTag}</span>
               <span style="font-size:10px;color:#999;margin-left:6px">日均${c.dailyLabel}</span>
             </span>
@@ -2154,10 +2218,10 @@ function renderClassifyList(app) {
             <div class="classify-amount">-¥${fmtMoney(e.amount)}</div>
             <div class="classify-date">${fmtDate(e.date)}</div>
           </div>
-          ${e.note ? `<div class="classify-note">📝 ${e.note}</div>` : ''}
+          ${e.note ? `<div class="classify-note">${ICONS.note} ${e.note}</div>` : ''}
           <button class="btn btn-primary" style="padding:8px 16px;font-size:13px">去分类 →</button>
         </div>`).join('') : `
-        <div class="empty"><div class="empty-icon">🎉</div><div>全部完成！没有未分类的支出</div></div>`}
+        <div class="empty"><div class="empty-icon">${ICONS.check}</div><div>全部完成！没有未分类的支出</div></div>`}
     </div>
   `;
 }
@@ -2189,7 +2253,7 @@ function renderClassifyOne(app, params) {
           <span class="text-muted">${ledger?.icon} ${ledger?.name}</span>
         </div>
         <div style="font-size:32px;font-weight:700;color:#e74c3c;margin:8px 0">-¥${fmtMoney(e.amount)}</div>
-        ${e.note ? `<div style="color:#666;font-size:13px;background:#f8f9fb;padding:8px 10px;border-radius:6px;margin-top:8px">📝 ${e.note}</div>` : ''}
+        ${e.note ? `<div style="color:#666;font-size:13px;background:#f8f9fb;padding:8px 10px;border-radius:6px;margin-top:8px">${ICONS.note} ${e.note}</div>` : ''}
       </div>
 
       <div class="card mt-16">
@@ -2198,7 +2262,7 @@ function renderClassifyOne(app, params) {
         <div class="cat-grid">
           ${cats.map(c => `
             <div class="cat-item ${st.catId === c.id ? 'selected' : ''}" onclick="pickCat('${c.id}')">
-              <div class="cat-emoji">${c.emoji}</div>
+              <div class="cat-emoji">${icon(c.emoji)}</div>
               <div class="cat-name">${c.name}</div>
             </div>`).join('')}
         </div>` : ''}
@@ -2372,7 +2436,7 @@ function renderEditExpense(app, params) {
           ${cats.map(c => `
             <div class="cat-item ${editExpenseState.categoryId === c.id ? 'selected' : ''}"
               onclick="editSelectCat('${c.id}')">
-              <div class="cat-emoji">${c.emoji}</div>
+              <div class="cat-emoji">${icon(c.emoji)}</div>
               <div class="cat-name">${c.name}</div>
             </div>`).join('')}
         </div>
@@ -2450,7 +2514,7 @@ function renderExpenseList(app, params) {
     </div>
     <div style="padding:12px 16px">
       ${list.length ? list.map(renderExpenseItem).join('') :
-        '<div class="empty"><div class="empty-icon">📭</div><div>本月暂无记录</div></div>'}
+        '<div class="empty"><div class="empty-icon">${ICONS.inbox}</div><div>本月暂无记录</div></div>'}
     </div>
   `;
 }
@@ -2620,13 +2684,13 @@ function checkReminder() {
     save();
     // 应用内弹窗
     setTimeout(async () => {
-      const ok = await confirmDialog('⏰ 记账提醒', '到每日记账时间啦！现在去记录今天的支出吧？');
+      const ok = await confirmDialog('记账提醒', '到每日记账时间啦！现在去记录今天的支出吧？');
       if (ok) navigate('add');
     }, 500);
     // 系统通知
     if ('Notification' in window && Notification.permission === 'granted') {
       try {
-        new Notification('⏰ 每日记账提醒', {
+        new Notification('每日记账提醒', {
           body: '到时间啦，记录一下今天的花销吧！',
           icon: 'icons/icon-192.svg',
           tag: 'daily-reminder-' + today

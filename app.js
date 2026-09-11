@@ -601,7 +601,7 @@ function getMonthPanelHtml(ledgerId) {
     const total = budget ? Number(budget.total) || 0 : 0;
     const active = ym === curYm ? 'active' : '';
     return `<div class="panel-item ${active}" onclick="selectPanelMonth('${ym}')">
-      <span class="panel-item-icon">📆</span>
+      <span class="panel-item-icon">${ICONS.calendar}</span>
       <span class="panel-item-text">${y}年${+m}月</span>
       <span class="panel-item-sub">¥${fmtMoney(total)}</span>
     </div>`;
@@ -618,7 +618,7 @@ function getLedgerPanelHtml() {
   return ledgers.map(l => {
     const active = l.id === curId ? 'active' : '';
     return `<div class="panel-item ${active}" onclick="selectPanelLedger('${l.id}')">
-      <span class="panel-item-icon">${l.icon}</span>
+      <span class="panel-item-icon">${icon(l.icon)}</span>
       <span class="panel-item-text">${l.name}</span>
     </div>`;
   }).join('') +

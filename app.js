@@ -1989,65 +1989,60 @@ async function delSub(cid, sid) {
 
 // ============ 5. 我的 ============
 function renderMe(app) {
-  const { reminderTime, reminderEnabled } = state.settings;
   const totalExpenses = state.expenses.length;
   const totalAmount = state.expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
 
+  // 当前月份预算概览
+  const ym = state.currentMonth;
+  const ledger = getCurrentLedger();
+  let totalBudget = 0, totalSpent = 0, remaining = 0;
+  if (ledger) {
+    const [start, end] = getMonthRange(ym);
+    const expenses = state.expenses.filter(e => e.ledgerId === ledger.id && e.date >= start && e.date < end);
+    const budget = state.budgets[ledger.id + '_' + ym] || null;
+    totalBudget = budget ? Number(budget.total) || 0 : 0;
+    totalSpent = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+    const savingsCats = (state.categories[ledger.id] || []).filter(c => c.kind === 'savings').map(c => c.id);
+    const savingsFromExpenses = expenses.filter(e => savingsCats.includes(e.categoryId))
+      .reduce((s, e) => s + (Number(e.amount) || 0), 0);
+    const actualExpense = totalSpent - savingsFromExpenses;
+    remaining = totalBudget - actualExpense - savingsFromExpenses;
+  }
+
   app.innerHTML = `
     <div class="profile-header">
-      <div class="profile-avatar">📒</div>
       <div class="profile-name">简洁记账</div>
       <div style="font-size:12px;opacity:0.85;margin-top:4px">
         账本 ${state.ledgers.length} · 总记录 ${totalExpenses} 笔 · 累计 ¥${fmtMoney(totalAmount)}
       </div>
     </div>
 
-    <div class="menu-list">
-      <div class="menu-item" onclick="navigate('skin')">
-        <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c1 0 2-.5 2-1.5 0-.4-.2-.8-.5-1-.3-.2-.5-.6-.5-1v-1c0-1 .8-2 2-2h2c3 0 5-2.5 5-5.5C22 5.5 17.5 2 12 2z"/></svg></div>
-        <div class="menu-label">皮肤设置</div>
-        <div class="menu-value">A ${SKIN_COLORS[state.settings.skin.a].name} · B ${SKIN_COLORS[state.settings.skin.b].name}</div>
-        <div class="menu-arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="navigate('settingsReminder')">
-        <div class="menu-icon">⏰</div>
-        <div class="menu-label">每日提醒记账</div>
-        <div class="menu-value">${reminderEnabled ? '已开启 · ' + reminderTime : '未开启'}</div>
-        <div class="menu-arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="setInitialBalance()">
-        <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11"/></svg></div>
-        <div class="menu-label">账户起始金额</div>
-        <div class="menu-value">¥${fmtMoney(state.settings.initialBalance || 0)}</div>
-        <div class="menu-arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="navigate('catManage')">
-        <div class="menu-icon">🏷️</div>
-        <div class="menu-label">分类管理</div>
-        <div class="menu-arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="navigate('classifyList')">
-        <div class="menu-icon">📥</div>
-        <div class="menu-label">未分类支出</div>
-        <div class="menu-value">${state.expenses.filter(e => !e.categoryId).length} 笔</div>
-        <div class="menu-arrow">›</div>
+    <div class="budget-summary-card">
+      <div class="bs-row">
+        <div class="bs-item">
+          <div class="bs-label">总预算</div>
+          <div class="bs-value">¥${fmtMoney(totalBudget)}</div>
+        </div>
+        <div class="bs-item">
+          <div class="bs-label">已支出</div>
+          <div class="bs-value bs-spent">¥${fmtMoney(totalSpent)}</div>
+        </div>
+        <div class="bs-item">
+          <div class="bs-label">剩余</div>
+          <div class="bs-value bs-remaining">¥${fmtMoney(remaining)}</div>
+        </div>
       </div>
     </div>
 
     <div class="menu-list">
+      <div class="menu-item" onclick="navigate('catManage')">
+        <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/></svg></div>
+        <div class="menu-label">分类管理</div>
+        <div class="menu-arrow">›</div>
+      </div>
       <div class="menu-item" onclick="navigate('dataBackup')">
         <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></div>
         <div class="menu-label">数据备份与恢复</div>
-        <div class="menu-arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="notifyTest()">
-        <div class="menu-icon">🔔</div>
-        <div class="menu-label">测试系统通知权限</div>
-        <div class="menu-arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="showAbout()">
-        <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
-        <div class="menu-label">关于</div>
         <div class="menu-arrow">›</div>
       </div>
     </div>

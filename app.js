@@ -1940,7 +1940,7 @@ function renderMe(app) {
 
     <div class="menu-list">
       <div class="menu-item" onclick="navigate('skin')">
-        <div class="menu-icon">🎨</div>
+        <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c1 0 2-.5 2-1.5 0-.4-.2-.8-.5-1-.3-.2-.5-.6-.5-1v-1c0-1 .8-2 2-2h2c3 0 5-2.5 5-5.5C22 5.5 17.5 2 12 2z"/></svg></div>
         <div class="menu-label">皮肤设置</div>
         <div class="menu-value">A ${SKIN_COLORS[state.settings.skin.a].name} · B ${SKIN_COLORS[state.settings.skin.b].name}</div>
         <div class="menu-arrow">›</div>
@@ -1952,7 +1952,7 @@ function renderMe(app) {
         <div class="menu-arrow">›</div>
       </div>
       <div class="menu-item" onclick="setInitialBalance()">
-        <div class="menu-icon">🏦</div>
+        <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11"/></svg></div>
         <div class="menu-label">账户起始金额</div>
         <div class="menu-value">¥${fmtMoney(state.settings.initialBalance || 0)}</div>
         <div class="menu-arrow">›</div>
@@ -1972,7 +1972,7 @@ function renderMe(app) {
 
     <div class="menu-list">
       <div class="menu-item" onclick="navigate('dataBackup')">
-        <div class="menu-icon">💾</div>
+        <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></div>
         <div class="menu-label">数据备份与恢复</div>
         <div class="menu-arrow">›</div>
       </div>
@@ -1982,7 +1982,7 @@ function renderMe(app) {
         <div class="menu-arrow">›</div>
       </div>
       <div class="menu-item" onclick="showAbout()">
-        <div class="menu-icon">ℹ️</div>
+        <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
         <div class="menu-label">关于</div>
         <div class="menu-arrow">›</div>
       </div>

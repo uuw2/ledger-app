@@ -1085,6 +1085,47 @@ select {
   color: var(--text);
 }
 
+/* 预算概览卡片 */
+.budget-summary-card {
+  background: var(--card);
+  margin: 12px 16px;
+  padding: 18px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.bs-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 8px;
+}
+
+.bs-item {
+  flex: 1;
+  text-align: center;
+}
+
+.bs-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.bs-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.bs-spent {
+  color: var(--danger, #ff3b30);
+}
+
+.bs-remaining {
+  color: var(--success, #34c759);
+}
+
 .menu-list {
   background: var(--card);
   margin: 12px 16px;

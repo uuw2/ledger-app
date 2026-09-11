@@ -468,7 +468,7 @@ function renderHome(app) {
   // 最近支出（最近5条）
   const recent = [...expenses].sort((a, b) => b.date - a.date).slice(0, 5);
   const recentHtml = recent.length ? recent.map(renderExpenseItem).join('') :
-    '<div class="empty" style="padding:30px 0"><div class="empty-icon">${ICONS.note}</div><div>本月还没有记录哦</div></div>';
+    `<div class="empty" style="padding:30px 0"><div class="empty-icon">${ICONS.note}</div><div>本月还没有记录哦</div></div>`;
 
   // 日期导航（基于 viewDate）
   const vd = new Date(state.viewDate);
@@ -1058,6 +1058,12 @@ function renderAdd(app) {
   const selectedCat = cats.find(c => c.id === addPageState.selectedCatId);
   const subCats = selectedCat ? selectedCat.subCategories : [];
 
+  // 最近支出明细（当前账本最近10条）
+  const recentExpenses = [...state.expenses]
+    .filter(e => e.ledgerId === ledger.id)
+    .sort((a, b) => b.date - a.date)
+    .slice(0, 10);
+
   // 日期选择：默认为今天，可选择过去或未来日期
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
@@ -1119,6 +1125,15 @@ function renderAdd(app) {
       </div>
 
       <button class="btn btn-primary btn-block" onclick="saveExpense()">确认记账</button>
+
+      <div class="recent-expenses-section">
+        <div class="section-label" style="padding:0 4px">最近支出明细</div>
+        ${recentExpenses.length ? `
+          <div class="recent-expenses-list">
+            ${recentExpenses.map(renderExpenseItem).join('')}
+          </div>
+        ` : `<div class="empty" style="padding:24px 0"><div class="empty-icon">${ICONS.inbox}</div><div>暂无支出记录</div></div>`}
+      </div>
     </div>
   `;
 
@@ -1378,7 +1393,7 @@ function renderStats(app, params = {}) {
           </div>
         </div>
       </div>`;
-  }).join('') : '<div class="empty" style="padding:30px 0"><div class="empty-icon">${ICONS.inbox}</div><div>暂无数据</div></div>';
+  }).join('') : `<div class="empty" style="padding:30px 0"><div class="empty-icon">${ICONS.inbox}</div><div>暂无数据</div></div>`;
 
   const unclassifiedHtml = unclassifiedSpent > 0 ? `
     <div class="bar-row" style="opacity:0.7">
@@ -2509,7 +2524,7 @@ function renderExpenseList(app, params) {
     </div>
     <div style="padding:12px 16px">
       ${list.length ? list.map(renderExpenseItem).join('') :
-        '<div class="empty"><div class="empty-icon">${ICONS.inbox}</div><div>本月暂无记录</div></div>'}
+        `<div class="empty"><div class="empty-icon">${ICONS.inbox}</div><div>本月暂无记录</div></div>`}
     </div>
   `;
 }

@@ -434,6 +434,20 @@ select {
   overflow: hidden;
 }
 
+/* 记一笔 - 最近支出明细 */
+.recent-expenses-section {
+  margin: 20px 16px 0;
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 14px 12px;
+  overflow: hidden;
+}
+
+.recent-expenses-list .expense-item:last-child {
+  border-bottom: none;
+}
+
 .expense-item {
   display: flex;
   align-items: center;

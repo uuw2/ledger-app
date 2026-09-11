@@ -461,6 +461,12 @@ select {
   justify-content: center;
   font-size: 20px;
   flex-shrink: 0;
+  color: var(--text);
+}
+
+.expense-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 .expense-info {
@@ -761,6 +767,12 @@ select {
   font-size: 24px;
   border: 2px solid transparent;
   transition: all 0.2s;
+  color: var(--text);
+}
+
+.cat-emoji svg {
+  width: 24px;
+  height: 24px;
 }
 
 .cat-item.selected .cat-emoji {
@@ -1514,4 +1526,64 @@ select {
 
 .switch.on::after {
   transform: translateX(18px);
+}
+
+/* ========== SVG 图标尺寸统一 ========== */
+.empty-icon svg,
+.budget-cat-emoji svg,
+.bar-cat-emoji svg,
+.panel-item-icon svg,
+.hamburger svg,
+.slide-panel-close svg,
+.ledger-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+
+.bar-cat-emoji,
+.budget-cat-emoji,
+.panel-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+}
+
+.hamburger svg {
+  width: 22px;
+  height: 22px;
+}
+
+.slide-panel-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+
+.slide-panel-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.classify-note svg,
+.bar-row-head svg,
+.summary-tip svg {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  margin-right: 4px;
 }
